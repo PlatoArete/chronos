@@ -1,0 +1,600 @@
+:root {
+    --body-bg: #f4f7f6;
+    --container-bg: #fff;
+    --text-color: #333;
+    --header-text-color: #2c3e50;
+    --border-color: #eee;
+    --button-bg: #fff;
+    --button-hover-bg: #e9e9e9;
+    --button-border-color: #ccc;
+    --day-border-color: #e0e0e0;
+    --day-hover-bg: #f0f0f0;
+    --day-empty-bg: #f9f9f9;
+    --other-month-text-color: #bbb;
+    --wfh-bg: #AEC6CF; /* Pastel Blue */
+    --wfh-text: #3E5F7A; /* Darker muted blue */
+    --office-bg: #FDFD96; /* Pastel Yellow */
+    --office-text: #7C7C4D; /* Darker muted yellow */
+    --holiday-bg: #FFB6C1; /* Pastel Pink (LightPink) */
+    --holiday-text: #8B5F6B; /* Darker muted pink */
+    --today-indicator-bg: #007bff;
+    --today-indicator-text: white;
+    --summary-box-bg: #f9f9f9;
+    --summary-header-text: #34495e;
+    --summary-border-dashed: #ddd;
+    --footer-text-color: #777;
+    --switch-bg: #ccc;
+    --switch-slider-bg: white;
+    --switch-checked-bg: #2196F3; 
+}
+
+body.dark-mode {
+    --body-bg: #121212; /* Very dark gray / Eigengrau */
+    --container-bg: #1e1e1e; /* Darker gray for containers */
+    --text-color: #e0e0e0; /* Slightly softer white for text */
+    --header-text-color: #e0e0e0;
+    --border-color: #333333; /* Dark gray border */
+    --button-bg: #2a2a2a; /* Dark gray button */
+    --button-hover-bg: #383838; /* Lighter hover for dark buttons */
+    --button-border-color: #444444; /* Slightly lighter border for buttons */
+    --day-border-color: #333333;
+    --day-hover-bg: #252525; /* Hover for day cells */
+    --day-empty-bg: #202020;  /* Background for empty/other-month day placeholders */
+    --other-month-text-color: #555555; /* Gray for other month day numbers */
+    --wfh-bg: #03A9F4;      /* Vibrant Blue */
+    --wfh-text: #FFFFFF;      /* White text */
+    --office-bg: #FBC02D;    /* Vibrant Yellow */
+    --office-text: #000000;    /* Black text */
+    --holiday-bg: #E91E63;    /* Vibrant Pink */
+    --holiday-text: #FFFFFF;    /* White text */
+    --today-indicator-bg: #0056b3; /* Keeping this distinct, can be changed if needed */
+    --today-indicator-text: #f0f0f0;
+    --summary-box-bg: #222222; /* Dark gray for summary boxes */
+    --summary-header-text: #e0e0e0;
+    --summary-border-dashed: #444444;
+    --footer-text-color: #777777; /* Medium gray for footer text */
+    --switch-bg: #444444; /* Background for the theme switch (off state) */
+    --switch-slider-bg: #e0e0e0; /* Slider button for the theme switch */
+    --switch-checked-bg: #4CAF50; 
+}
+
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to top to see header first */
+    min-height: 100vh;
+    padding-top: 20px; /* Add some padding at the top */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+    background-color: var(--container-bg);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 90%;
+    max-width: 900px; /* Max width of the calendar container */
+    transition: background-color 0.3s ease;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    position: relative; /* For positioning the theme switcher */
+    transition: border-bottom-color 0.3s ease;
+}
+
+header h1 {
+    color: var(--header-text-color);
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+/* New Settings Dropdown Styles */
+.settings-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.settings-button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.8em; /* Make cog larger */
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.settings-button:hover {
+    opacity: 0.7;
+}
+
+.settings-dropdown {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%; /* Position below the button */
+    right: 0;
+    background-color: var(--container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 180px; /* Adjust as needed */
+    padding: 10px;
+}
+
+.settings-dropdown.active {
+    display: block;
+}
+
+.dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0; /* Adjust padding within item */
+}
+
+.dropdown-item span {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-right: 10px; /* Space between text and toggle */
+}
+
+.dropdown-item label {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-right: 10px;
+}
+
+.dropdown-item-label {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-right: 10px;
+    flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+.dropdown-input {
+    width: 50px; /* Adjust width as needed */
+    padding: 4px;
+    border: 1px solid var(--button-border-color);
+    border-radius: 3px;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    text-align: center;
+}
+
+/* Styles for the theme switch itself, if they need adjustment in dropdown */
+/* .theme-switch and .slider styles are largely okay but ensure they fit well */
+.settings-dropdown .theme-switch {
+    width: 44px;
+    height: 24px;
+}
+
+.settings-dropdown .slider:before {
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+}
+
+.settings-dropdown input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* End New Settings Dropdown Styles */
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Space between control elements */
+    margin-top: 10px;
+}
+
+.controls button, .controls select {
+    padding: 8px 12px;
+    border: 1px solid var(--button-border-color);
+    border-radius: 5px;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.controls select {
+    min-width: 100px; /* Give selects a bit more width */
+}
+
+main {
+    display: flex;
+    gap: 20px; /* Space between calendar and summary */
+}
+
+.calendar-container {
+    flex: 3; /* Calendar takes more space */
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    font-weight: bold;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 10px;
+    transition: border-bottom-color 0.3s ease, color 0.3s ease;
+}
+
+.calendar-header div {
+    padding: 5px 0;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px; /* Gap between day cells */
+}
+
+.day {
+    border: 1px solid var(--day-border-color);
+    min-height: 80px; /* Minimum height for a day cell */
+    padding: 8px;
+    text-align: right;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    position: relative;
+    background-color: var(--container-bg); /* Day background uses variable, which changes with theme */
+    /* Prevent text selection on click/drag */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* IE10+/Edge */
+    user-select: none;         /* Standard */
+}
+
+/* This rule below is likely redundant and might be causing the override issue in dark mode for status colors.
+   The .day rule above already uses var(--container-bg) which is updated by dark-mode.
+body.dark-mode .day {
+    background-color: var(--container-bg); 
+}
+*/
+
+.day:hover {
+    background-color: var(--day-hover-bg);
+}
+
+.day.empty {
+    background-color: var(--day-empty-bg);
+    cursor: default;
+}
+
+.day.other-month .day-number {
+    color: var(--other-month-text-color);
+    font-weight: normal;
+}
+
+.day.other-month {
+    cursor: default;
+    background-color: transparent !important; 
+}
+
+.day.other-month:hover {
+    background-color: transparent !important; 
+}
+
+.day.other-month.wfh .day-number,
+.day.other-month.office .day-number {
+    color: var(--other-month-text-color) !important;
+}
+
+.day.other-month.wfh,
+.day.other-month.office {
+    background-color: transparent !important;
+}
+
+.day.other-month.holiday .day-number {
+    color: var(--other-month-text-color) !important;
+}
+
+.day.other-month.holiday {
+    background-color: transparent !important;
+}
+
+.day .day-number {
+    font-weight: bold;
+    display: block; /* Make day number take full width initially */
+    margin-bottom: 3px; /* Space between day number and status text */
+}
+
+.day .status-text {
+    display: block;
+    font-size: 0.75em;
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.2;
+    position: absolute; /* Added for better control */
+    bottom: 5px;        /* Position at the bottom */
+    left: 0;
+    right: 0;
+    padding: 0 3px; /* Padding for the text */
+}
+
+/* Ensure status text color contrasts with its day type bg */
+.day.wfh .status-text {
+    color: var(--wfh-text);
+}
+.day.office .status-text {
+    color: var(--office-text);
+}
+.day.holiday .status-text {
+    color: var(--holiday-text);
+}
+
+.day.other-month .status-text {
+    display: none; /* Hide status text for other-month days */
+}
+
+/* Day status indicators */
+.day.wfh {
+    background-color: var(--wfh-bg);
+    color: var(--wfh-text);
+}
+
+.day.office {
+    background-color: var(--office-bg);
+    color: var(--office-text);
+}
+
+.day.wfh:hover, .day.office:hover {
+    opacity: 0.8;
+}
+
+.day.holiday {
+    background-color: var(--holiday-bg);
+    color: var(--holiday-text);
+}
+
+.day.holiday:hover {
+    opacity: 0.8;
+}
+
+.day.today .day-number {
+    background-color: var(--today-indicator-bg);
+    color: var(--today-indicator-text);
+    border-radius: 50%;
+    padding: 3px 6px;
+    display: inline-block;
+    line-height: 1;
+}
+
+.summary-container {
+    flex: 1; /* Summary takes less space */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.summary-box {
+    background-color: var(--summary-box-bg);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.summary-box h2 {
+    font-size: 1.2em;
+    color: var(--summary-header-text);
+    margin-bottom: 10px;
+    border-bottom: 1px dashed var(--summary-border-dashed);
+    padding-bottom: 5px;
+    transition: color 0.3s ease, border-bottom-color 0.3s ease;
+}
+
+.summary-box p {
+    font-size: 0.95em;
+    margin-bottom: 5px;
+}
+
+.summary-box span {
+    font-weight: bold;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9em;
+    color: var(--footer-text-color);
+    transition: border-top-color 0.3s ease, color 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    main {
+        flex-direction: column;
+    }
+
+    .controls {
+        flex-wrap: wrap; /* Allow controls to wrap on smaller screens */
+    }
+
+    .controls select, .controls button {
+        margin-bottom: 5px; /* Add some space if they wrap */
+    }
+
+    .day {
+        min-height: 60px;
+        font-size: 0.8em;
+    }
+    .settings-container {
+        top: 10px;
+        right: 10px;
+    }
+    .settings-button {
+        font-size: 1.6em;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    .controls button, .controls select {
+        font-size: 0.9em;
+        padding: 6px 10px;
+    }
+
+    .day {
+        min-height: 50px;
+    }
+
+    .calendar-header div {
+        font-size: 0.8em;
+    }
+    .settings-container {
+        top: 8px;
+        right: 8px;
+    }
+    .settings-button {
+        font-size: 1.5em;
+    }
+}
+
+.working-days-checkboxes {
+    display: flex;
+    gap: 5px; /* Space between checkboxes */
+    align-items: center; 
+}
+
+.working-days-checkboxes label {
+    font-size: 0.85em; /* Slightly smaller font for M, T, W etc. */
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    border: 1px solid transparent; /* For focus or selected styles later if needed */
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.working-days-checkboxes input[type="checkbox"] {
+    margin-right: 4px;
+    accent-color: var(--today-indicator-bg); /* Use a theme color for the check itself */
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 2000; /* Sit on top - higher than settings dropdown */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity for overlay */
+    padding-top: 60px; /* Location of the box */
+}
+
+.modal.active {
+    display: flex; /* Use flex to center content */
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    margin: auto;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 80%;
+    max-width: 700px; /* Max width */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    animation-name: animatetop;
+    animation-duration: 0.4s
+}
+
+/* Add Animation */
+@keyframes animatetop {
+    from {top: -300px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+
+.modal-header {
+    padding: 2px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    color: var(--header-text-color);
+    font-size: 1.3em;
+}
+
+.close-button {
+    color: var(--text-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #ff0000; /* Make close button red on hover/focus */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 15px 16px;
+    max-height: 70vh; /* Max height for the body, enabling scroll */
+    overflow-y: auto;   /* Add scroll for long content */
+}
+
+.modal-body pre {
+    white-space: pre-wrap;       /* CSS3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    color: var(--text-color);
+    background-color: var(--body-bg); /* Slight contrast for pre block */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+/* End Modal Styles */ 
