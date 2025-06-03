@@ -50,4 +50,4 @@ No web server or internet connection is strictly required for core functionality
 *   **JavaScript**: All application logic, including calendar generation, interaction, data storage, API calls, and summary calculations.
 
 ---
-Created by Andy Sproston - HSBC 2025
+Created by Andy Sproston - 2025
