@@ -215,46 +215,61 @@ document.addEventListener('DOMContentLoaded', () => {
         if (monthlyTargetOfficeEl) monthlyTargetOfficeEl.textContent = monthlyTargetOfficeDays;
         if (monthlyOfficePercentageEl) monthlyOfficePercentageEl.textContent = monthlyOfficePercentage.toFixed(1);
 
-        // Quarterly summary
-        const currentQuarter = Math.floor(month / 3);
-        const startMonthOfQuarter = currentQuarter * 3;
+        // Initialize summary variables for the new three-month period
+let threeMonthWfh = 0;
+let threeMonthOffice = 0;
+let threeMonthNetWorkingDays = 0;
 
-        for (let mOffset = 0; mOffset < 3; mOffset++) {
-            const currentMonthInQuarter = startMonthOfQuarter + mOffset;
-            // Adjust year if quarter spans across year-end (e.g. viewing Dec, quarter is Oct, Nov, Dec)
-            // Or viewing Jan, quarter is Jan, Feb, Mar of current year.
-            // This simple calculation assumes the quarter is within the same `year` as the viewed `month`.
-            // For a more robust cross-year quarter, this would need adjustment if `startMonthOfQuarter` or `currentMonthInQuarter` makes year change.
-            const yearForThisMonthInQuarter = year; 
-            const daysInThisMonth = new Date(yearForThisMonthInQuarter, currentMonthInQuarter + 1, 0).getDate();
-            
-            for (let day = 1; day <= daysInThisMonth; day++) {
-                const dateStr = `${yearForThisMonthInQuarter}-${String(currentMonthInQuarter + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const currentDateObj = new Date(yearForThisMonthInQuarter, currentMonthInQuarter, day);
-                const dayOfWeek = currentDateObj.getDay();
+// Loop through the current month (offset 0), one month before (offset -1), and two months before (offset -2)
+// The loop iterates from the current month's offset down to -2.
+for (let mOffset = 0; mOffset >= -2; mOffset--) {
+    // Calculate the target month for the current iteration (0-indexed)
+    // The '+ 12' and '% 12' ensure that month calculation correctly wraps around for negative offsets
+    // (e.g., if current month is 0 (January) and mOffset is -1, targetMonth becomes 11 (December)).
+    const targetMonth = (month + mOffset % 12 + 12) % 12;
 
-                const currentDayStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.HOLIDAY : null);
+    // Calculate the target year for the current iteration
+    // If (month + mOffset) is negative (e.g., current month is January, mOffset is -1),
+    // it means we've moved into the previous year. Math.floor handles this correctly.
+    const yearForThisMonth = year + Math.floor((month + mOffset) / 12);
 
-                if (currentDayStatus === DAY_STATUS.WFH) quarterlyWfh++;
-                if (currentDayStatus === DAY_STATUS.OFFICE) quarterlyOffice++;
+    // Get the number of days in the calculated month for the calculated year
+    const daysInThisMonth = new Date(yearForThisMonth, targetMonth + 1, 0).getDate();
 
-                if (selectedWorkingDays.has(dayOfWeek)) {
-                    if (currentDayStatus !== DAY_STATUS.HOLIDAY) {
-                        quarterlyNetWorkingDays++;
-                    }
-                }
+    // Iterate through each day of the calculated month
+    for (let day = 1; day <= daysInThisMonth; day++) {
+        const dateStr = `${yearForThisMonth}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const currentDateObj = new Date(yearForThisMonth, targetMonth, day);
+        const dayOfWeek = currentDateObj.getDay();
+
+        // Assuming workData, bankHolidayData, DAY_STATUS, and selectedWorkingDays are defined in your broader script
+        const currentDayStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.HOLIDAY : null);
+
+        if (currentDayStatus === DAY_STATUS.WFH) threeMonthWfh++;
+        if (currentDayStatus === DAY_STATUS.OFFICE) threeMonthOffice++;
+
+        if (selectedWorkingDays.has(dayOfWeek)) {
+            if (currentDayStatus !== DAY_STATUS.HOLIDAY) {
+                threeMonthNetWorkingDays++;
             }
         }
-        quarterlyWfhEl.textContent = quarterlyWfh;
-        quarterlyOfficeEl.textContent = quarterlyOffice;
-        if (quarterlyWorkingDaysEl) quarterlyWorkingDaysEl.textContent = quarterlyNetWorkingDays;
-
-        // Calculate and display quarterly target office days and percentage
-        quarterlyTargetOfficeDays = Math.ceil(quarterlyNetWorkingDays * 0.6);
-        quarterlyOfficePercentage = (quarterlyNetWorkingDays > 0) ? (quarterlyOffice / quarterlyNetWorkingDays) * 100 : 0;
-        if (quarterlyTargetOfficeEl) quarterlyTargetOfficeEl.textContent = quarterlyTargetOfficeDays;
-        if (quarterlyOfficePercentageEl) quarterlyOfficePercentageEl.textContent = quarterlyOfficePercentage.toFixed(1);
     }
+}
+
+// Update the text content of your display elements with the new three-month summary totals
+// Note: The element variable names (e.g., quarterlyWfhEl) remain the same based on your original code,
+// but they will now display the 3-month summary instead of the quarterly summary.
+quarterlyWfhEl.textContent = threeMonthWfh;
+quarterlyOfficeEl.textContent = threeMonthOffice;
+if (quarterlyWorkingDaysEl) quarterlyWorkingDaysEl.textContent = threeMonthNetWorkingDays;
+
+// Calculate and display target office days and percentage for the three-month period
+let threeMonthTargetOfficeDays = Math.ceil(threeMonthNetWorkingDays * 0.6); // Assuming a 60% target
+let threeMonthOfficePercentage = (threeMonthNetWorkingDays > 0) ? (threeMonthOffice / threeMonthNetWorkingDays) * 100 : 0;
+
+if (quarterlyTargetOfficeEl) quarterlyTargetOfficeEl.textContent = threeMonthTargetOfficeDays;
+if (quarterlyOfficePercentageEl) quarterlyOfficePercentageEl.textContent = threeMonthOfficePercentage.toFixed(1);
+
 
     function saveWorkData() {
         localStorage.setItem('workData', JSON.stringify(workData));
