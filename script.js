@@ -35,8 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    const DAY_STATUS = { NONE: 'none', WFH: 'wfh', OFFICE: 'office', HOLIDAY: 'holiday' };
-    const STATUS_TEXT = { [DAY_STATUS.WFH]: 'WFH', [DAY_STATUS.OFFICE]: 'WFO', [DAY_STATUS.HOLIDAY]: 'HOLS' };
+    const DAY_STATUS = { 
+        NONE: 'none', 
+        WFH: 'wfh', 
+        OFFICE: 'office', 
+        HOLIDAY: 'holiday',
+        SICK: 'sick',
+        PERSONAL: 'personal',
+        OFFSITE: 'offsite'
+    };
+    const STATUS_TEXT = { 
+        [DAY_STATUS.WFH]: 'WFH', 
+        [DAY_STATUS.OFFICE]: 'WFO', 
+        [DAY_STATUS.HOLIDAY]: 'HOLS',
+        [DAY_STATUS.SICK]: 'SICK',
+        [DAY_STATUS.PERSONAL]: 'PERS',
+        [DAY_STATUS.OFFSITE]: 'OFF'
+    };
 
     function populateMonthSelect() {
         MONTH_NAMES.forEach((month, index) => {
@@ -148,12 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentStatus === DAY_STATUS.WFH) {
             nextStatus = DAY_STATUS.OFFICE;
         } else if (currentStatus === DAY_STATUS.OFFICE) {
+            nextStatus = DAY_STATUS.OFFSITE;
+        } else if (currentStatus === DAY_STATUS.OFFSITE) {
             nextStatus = DAY_STATUS.HOLIDAY;
         } else if (currentStatus === DAY_STATUS.HOLIDAY) {
-            nextStatus = DAY_STATUS.NONE; 
+            nextStatus = DAY_STATUS.SICK;
+        } else if (currentStatus === DAY_STATUS.SICK) {
+            nextStatus = DAY_STATUS.PERSONAL;
+        } else if (currentStatus === DAY_STATUS.PERSONAL) {
+            nextStatus = DAY_STATUS.NONE;
         }
 
-        dayCell.classList.remove(DAY_STATUS.WFH, DAY_STATUS.OFFICE, DAY_STATUS.HOLIDAY);
+        dayCell.classList.remove(DAY_STATUS.WFH, DAY_STATUS.OFFICE, DAY_STATUS.HOLIDAY, DAY_STATUS.SICK, DAY_STATUS.PERSONAL, DAY_STATUS.OFFSITE);
         const statusTextSpan = dayCell.querySelector('.status-text');
 
         if (nextStatus === DAY_STATUS.NONE) {
@@ -197,10 +218,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentDayStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.HOLIDAY : null);
 
             if (currentDayStatus === DAY_STATUS.WFH) monthlyWfh++;
-            if (currentDayStatus === DAY_STATUS.OFFICE) monthlyOffice++;
+            if (currentDayStatus === DAY_STATUS.OFFICE || currentDayStatus === DAY_STATUS.OFFSITE) monthlyOffice++;
 
             if (selectedWorkingDays.has(dayOfWeek)) {
-                if (currentDayStatus !== DAY_STATUS.HOLIDAY) {
+                // Count as working day if not a holiday, sick day, or personal leave
+                if (currentDayStatus !== DAY_STATUS.HOLIDAY && 
+                    currentDayStatus !== DAY_STATUS.SICK && 
+                    currentDayStatus !== DAY_STATUS.PERSONAL) {
                     monthlyNetWorkingDays++;
                 }
             }
@@ -235,10 +259,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const currentDayStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.HOLIDAY : null);
 
                 if (currentDayStatus === DAY_STATUS.WFH) quarterlyWfh++;
-                if (currentDayStatus === DAY_STATUS.OFFICE) quarterlyOffice++;
+                if (currentDayStatus === DAY_STATUS.OFFICE || currentDayStatus === DAY_STATUS.OFFSITE) quarterlyOffice++;
 
                 if (selectedWorkingDays.has(dayOfWeek)) {
-                    if (currentDayStatus !== DAY_STATUS.HOLIDAY) {
+                    // Count as working day if not a holiday, sick day, or personal leave
+                    if (currentDayStatus !== DAY_STATUS.HOLIDAY && 
+                        currentDayStatus !== DAY_STATUS.SICK && 
+                        currentDayStatus !== DAY_STATUS.PERSONAL) {
                         quarterlyNetWorkingDays++;
                     }
                 }

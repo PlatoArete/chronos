@@ -9,9 +9,12 @@ Project Chronos is a client-side web application designed to help you track your
     *   Click on a day to cycle its status through:
         *   **WFH** (Work From Home) - Pastel Blue (Light Mode) / Neon Blue (Dark Mode)
         *   **WFO** (Work From Office) - Pastel Yellow (Light Mode) / Neon Yellow (Dark Mode)
+        *   **OFF** (Off Site Work) - Pastel Turquoise (Light Mode) / Neon Turquoise (Dark Mode) - counts as office time
         *   **HOLS** (Holiday) - Pastel Pink (Light Mode) / Neon Pink (Dark Mode)
+        *   **SICK** (Sick Leave) - Pastel Red (Light Mode) / Neon Red (Dark Mode) - counts as non-working day
+        *   **PERS** (Personal Leave) - Pastel Purple (Light Mode) / Neon Purple (Dark Mode) - counts as non-working day
         *   Clear (no status)
-    *   Text indicators (WFH, WFO, HOLS) directly on the calendar days.
+    *   Text indicators (WFH, WFO, OFF, HOLS, SICK, PERS) directly on the calendar days.
 *   **Automatic UK Bank Holiday Integration**:
     *   Automatically fetches and marks bank holidays for England and Wales from the `gov.uk` API as "HOLS".
     *   These are visually distinct and factored into working day calculations.
@@ -21,10 +24,10 @@ Project Chronos is a client-side web application designed to help you track your
 *   **Detailed Summaries**:
     *   **Monthly Summary**:
         *   Count of WFH days.
-        *   Count of WFO days.
-        *   **Net Working Days**: Calculated based on your selected working days for the month, minus any marked holidays (user-marked or API-set).
+        *   Count of WFO days (including Off Site work).
+        *   **Net Working Days**: Calculated based on your selected working days for the month, minus any marked holidays, sick leave, or personal leave.
         *   **Target Office Days (60%)**: The target number of office days, calculated as 60% of Net Working Days (rounded to nearest whole number).
-        *   **Office Presence**: Your actual office days as a percentage of Net Working Days.
+        *   **Office Presence**: Your actual office days (including Off Site work) as a percentage of Net Working Days.
     *   **3-Month Rolling Summary**: Provides the same metrics as the monthly summary, aggregated for the current month and previous two months.
 *   **Theme Customization**: 
     *   **Dark/Light Mode Toggle**: Switch between a dark (default) and light visual theme via a settings menu.

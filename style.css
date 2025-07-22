@@ -17,6 +17,12 @@
     --office-text: #7C7C4D; /* Darker muted yellow */
     --holiday-bg: #FFB6C1; /* Pastel Pink (LightPink) */
     --holiday-text: #8B5F6B; /* Darker muted pink */
+    --sick-bg: #E6B0AA; /* Pastel Red */
+    --sick-text: #943126; /* Darker muted red */
+    --personal-bg: #D7BDE2; /* Pastel Purple */
+    --personal-text: #6C3483; /* Darker muted purple */
+    --offsite-bg: #A2D9CE; /* Pastel Turquoise */
+    --offsite-text: #45B39D; /* Darker muted turquoise */
     --today-indicator-bg: #007bff;
     --today-indicator-text: white;
     --summary-box-bg: #f9f9f9;
@@ -47,6 +53,12 @@ body.dark-mode {
     --office-text: #000000;    /* Black text */
     --holiday-bg: #E91E63;    /* Vibrant Pink */
     --holiday-text: #FFFFFF;    /* White text */
+    --sick-bg: #F44336;      /* Vibrant Red */
+    --sick-text: #FFFFFF;      /* White text */
+    --personal-bg: #9C27B0;   /* Vibrant Purple */
+    --personal-text: #FFFFFF;   /* White text */
+    --offsite-bg: #009688;    /* Vibrant Turquoise */
+    --offsite-text: #FFFFFF;    /* White text */
     --today-indicator-bg: #0056b3; /* Keeping this distinct, can be changed if needed */
     --today-indicator-text: #f0f0f0;
     --summary-box-bg: #222222; /* Dark gray for summary boxes */
@@ -365,16 +377,28 @@ body.dark-mode .day {
     color: var(--office-text);
 }
 
-.day.wfh:hover, .day.office:hover {
-    opacity: 0.8;
-}
-
 .day.holiday {
     background-color: var(--holiday-bg);
     color: var(--holiday-text);
 }
 
-.day.holiday:hover {
+.day.sick {
+    background-color: var(--sick-bg);
+    color: var(--sick-text);
+}
+
+.day.personal {
+    background-color: var(--personal-bg);
+    color: var(--personal-text);
+}
+
+.day.offsite {
+    background-color: var(--offsite-bg);
+    color: var(--offsite-text);
+}
+
+.day.wfh:hover, .day.office:hover, .day.holiday:hover, 
+.day.sick:hover, .day.personal:hover, .day.offsite:hover {
     opacity: 0.8;
 }
 
