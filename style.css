@@ -31,7 +31,10 @@
     --footer-text-color: #777;
     --switch-bg: #ccc;
     --switch-slider-bg: white;
-    --switch-checked-bg: #2196F3; 
+    --switch-checked-bg: #2196F3;
+    --dropdown-shadow: rgba(0, 0, 0, 0.1);
+    --dropdown-hover-bg: rgba(0, 0, 0, 0.05);
+    --checkmark-color: #4CAF50;
 }
 
 body.dark-mode {
@@ -67,7 +70,7 @@ body.dark-mode {
     --footer-text-color: #777777; /* Medium gray for footer text */
     --switch-bg: #444444; /* Background for the theme switch (off state) */
     --switch-slider-bg: #e0e0e0; /* Slider button for the theme switch */
-    --switch-checked-bg: #4CAF50; 
+    --switch-checked-bg: #4CAF50;
 }
 
 /* Basic Reset */
@@ -244,6 +247,8 @@ main {
 
 .calendar-container {
     flex: 3; /* Calendar takes more space */
+    position: relative; /* Create stacking context */
+    z-index: 0; /* Base level */
 }
 
 .calendar-header {
@@ -282,12 +287,15 @@ main {
     -moz-user-select: none;    /* Firefox */
     -ms-user-select: none;     /* IE10+/Edge */
     user-select: none;         /* Standard */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 /* This rule below is likely redundant and might be causing the override issue in dark mode for status colors.
    The .day rule above already uses var(--container-bg) which is updated by dark-mode.
 body.dark-mode .day {
-    background-color: var(--container-bg); 
+    background-color: var(--container-bg);
 }
 */
 
@@ -307,11 +315,11 @@ body.dark-mode .day {
 
 .day.other-month {
     cursor: default;
-    background-color: transparent !important; 
+    background-color: transparent !important;
 }
 
 .day.other-month:hover {
-    background-color: transparent !important; 
+    background-color: transparent !important;
 }
 
 .day.other-month.wfh .day-number,
@@ -397,7 +405,7 @@ body.dark-mode .day {
     color: var(--offsite-text);
 }
 
-.day.wfh:hover, .day.office:hover, .day.holiday:hover, 
+.day.wfh:hover, .day.office:hover, .day.holiday:hover,
 .day.sick:hover, .day.personal:hover, .day.offsite:hover {
     opacity: 0.8;
 }
@@ -515,7 +523,7 @@ footer {
 .working-days-checkboxes {
     display: flex;
     gap: 5px; /* Space between checkboxes */
-    align-items: center; 
+    align-items: center;
 }
 
 .working-days-checkboxes label {
@@ -621,4 +629,126 @@ footer {
     border-radius: 4px;
     border: 1px solid var(--border-color);
 }
-/* End Modal Styles */ 
+/* End Modal Styles */
+
+.day-status-button {
+    background: none;
+    border: none;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+    position: relative;
+    outline: none;
+}
+
+.day-status-button:focus-visible {
+    box-shadow: 0 0 0 2px var(--today-indicator-bg);
+}
+
+.day-status-button svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease;
+}
+
+.day-status-button.active svg {
+    transform: rotate(180deg); /* Rotate to point left */
+}
+
+.day-status-dropdown {
+    position: fixed; /* Change to fixed positioning */
+    left: calc(100% + 5px);
+    top: 0;
+    background-color: var(--container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px var(--dropdown-shadow);
+    z-index: 9999; /* Very high z-index */
+    min-width: 120px;
+    display: none;
+}
+
+.day-status-dropdown.active {
+    display: block;
+}
+
+.day-status-option {
+    padding: 8px 12px;
+    display: grid;
+    grid-template-columns: 16px 1fr 16px;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    min-width: 140px; /* Ensure enough space for all elements */
+}
+
+/* Remove the separate focus style and combine hover/focus effects */
+.day-status-option:hover,
+.day-status-option:focus {
+    outline: none;
+    background-color: var(--dropdown-hover-bg);
+}
+
+/* Consistent hover effect for both light and dark modes */
+body:not(.dark-mode) .day-status-option:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+body.dark-mode .day-status-option:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.day-status-option .status-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    grid-column: 1;
+}
+
+.day-status-option .status-text {
+    grid-column: 2;
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+.day-status-option .status-check {
+    grid-column: 3;
+    color: var(--checkmark-color);
+    display: none;
+    justify-self: end; /* Align to the right of its grid cell */
+}
+
+.day-status-option.selected .status-check {
+    display: block;
+}
+
+/* Status color indicators for dropdown */
+.day-status-option[data-status="wfh"] .status-color { background-color: var(--wfh-bg); z-index: auto; }
+.day-status-option[data-status="office"] .status-color { background-color: var(--office-bg); z-index: auto; }
+.day-status-option[data-status="holiday"] .status-color { background-color: var(--holiday-bg); z-index: auto; }
+.day-status-option[data-status="sick"] .status-color { background-color: var(--sick-bg); z-index: auto; }
+.day-status-option[data-status="personal"] .status-color { background-color: var(--personal-bg); z-index: auto; }
+.day-status-option[data-status="offsite"] .status-color { background-color: var(--offsite-bg); z-index: auto; }
+.day-status-option[data-status="bank-holiday"] .status-color { background-color: var(--holiday-bg); z-index: auto; }
+
+/* Day status indicators - reset z-index */
+.day.wfh { background-color: var(--wfh-bg); z-index: auto; }
+.day.office { background-color: var(--office-bg); z-index: auto; }
+.day.holiday { background-color: var(--holiday-bg); z-index: auto; }
+.day.sick { background-color: var(--sick-bg); z-index: auto; }
+.day.personal { background-color: var(--personal-bg); z-index: auto; }
+.day.offsite { background-color: var(--offsite-bg); z-index: auto; }
+
+/* Hide dropdown button on mobile */
+@media (max-width: 768px) {
+    .day-status-button {
+        display: none;
+    }
+} 

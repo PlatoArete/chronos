@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         SICK: 'sick',
         PERSONAL: 'personal',
         OFFSITE: 'offsite',
-        BANK_HOLIDAY: 'bank-holiday' // Adding this for class consistency
+        BANK_HOLIDAY: 'bank-holiday'
     };
     const STATUS_TEXT = { 
         [DAY_STATUS.WFH]: 'WFH', 
@@ -54,6 +54,18 @@ document.addEventListener('DOMContentLoaded', () => {
         [DAY_STATUS.OFFSITE]: 'OFF',
         [DAY_STATUS.BANK_HOLIDAY]: 'BHOL'
     };
+
+    // Status options for the dropdown (order matters for display)
+    const STATUS_OPTIONS = [
+        { status: DAY_STATUS.WFH, text: 'Work From Home' },
+        { status: DAY_STATUS.OFFICE, text: 'Work From Office' },
+        { status: DAY_STATUS.OFFSITE, text: 'Off Site Work' },
+        { status: DAY_STATUS.HOLIDAY, text: 'Holiday' },
+        { status: DAY_STATUS.SICK, text: 'Sick Leave' },
+        { status: DAY_STATUS.PERSONAL, text: 'Personal Leave' },
+        { status: DAY_STATUS.BANK_HOLIDAY, text: 'Bank Holiday' },
+        { status: DAY_STATUS.NONE, text: 'Clear' }
+    ];
 
     function populateMonthSelect() {
         MONTH_NAMES.forEach((month, index) => {
@@ -74,82 +86,259 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function createStatusDropdown(dayCell, dateStr, currentStatus) {
+        const dropdown = document.createElement('div');
+        dropdown.className = 'day-status-dropdown';
+        dropdown.setAttribute('role', 'listbox');
+        dropdown.setAttribute('aria-label', `Select status for ${dateStr}`);
+
+        STATUS_OPTIONS.forEach(option => {
+            const optionEl = document.createElement('div');
+            optionEl.className = 'day-status-option';
+            optionEl.setAttribute('role', 'option');
+            optionEl.setAttribute('data-status', option.status);
+            if (currentStatus === option.status) {
+                optionEl.classList.add('selected');
+                optionEl.setAttribute('aria-selected', 'true');
+            }
+
+            const colorDot = document.createElement('span');
+            colorDot.className = 'status-color';
+            
+            const text = document.createElement('span');
+            text.className = 'status-text';
+            text.textContent = option.text;
+            
+            const checkmark = document.createElement('span');
+            checkmark.className = 'status-check';
+            checkmark.innerHTML = '✓';
+            checkmark.setAttribute('aria-hidden', 'true');
+
+            optionEl.appendChild(colorDot);
+            optionEl.appendChild(text);
+            optionEl.appendChild(checkmark);
+
+            optionEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setDayStatus(dayCell, dateStr, option.status);
+                closeAllDropdowns();
+            });
+
+            // Keyboard navigation
+            optionEl.addEventListener('keydown', (e) => {
+                switch (e.key) {
+                    case 'Enter':
+                    case ' ':
+                        e.preventDefault();
+                        setDayStatus(dayCell, dateStr, option.status);
+                        closeAllDropdowns();
+                        break;
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        const next = optionEl.nextElementSibling;
+                        if (next) next.focus();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        const prev = optionEl.previousElementSibling;
+                        if (prev) prev.focus();
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        closeAllDropdowns();
+                        break;
+                }
+            });
+
+            optionEl.setAttribute('tabindex', '0');
+            dropdown.appendChild(optionEl);
+        });
+
+        return dropdown;
+    }
+
+    function closeAllDropdowns() {
+        document.querySelectorAll('.day-status-button.active').forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-expanded', 'false');
+        });
+        document.querySelectorAll('.day-status-dropdown.active').forEach(dropdown => {
+            dropdown.classList.remove('active');
+            if (dropdown.parentElement) {
+                dropdown.parentElement.removeChild(dropdown);
+            }
+        });
+    }
+
+    function setDayStatus(dayCell, dateStr, status) {
+        dayCell.classList.remove(...Object.values(DAY_STATUS));
+        const statusTextSpan = dayCell.querySelector('.status-text');
+
+        if (status === DAY_STATUS.NONE) {
+            delete workData[dateStr];
+            if (statusTextSpan) statusTextSpan.textContent = '';
+        } else {
+            workData[dateStr] = status;
+            dayCell.classList.add(status);
+            if (statusTextSpan) {
+                statusTextSpan.textContent = STATUS_TEXT[status] || '';
+            }
+        }
+        saveWorkData();
+        updateSummaries(currentDate.getFullYear(), currentDate.getMonth());
+    }
+
+    function createDayCell(day, dateStr, isOtherMonth = false) {
+        const dayCell = document.createElement('div');
+        dayCell.classList.add('day');
+        if (isOtherMonth) dayCell.classList.add('other-month');
+
+        // Create status button with chevron
+        const statusButton = document.createElement('button');
+        statusButton.className = 'day-status-button';
+        statusButton.setAttribute('aria-label', `Change status for ${dateStr}`);
+        statusButton.setAttribute('aria-expanded', 'false');
+        statusButton.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8l4 4-4 4"/>
+            </svg>
+        `;
+
+        // Create day number
+        const dayNumberSpan = document.createElement('span');
+        dayNumberSpan.classList.add('day-number');
+        dayNumberSpan.textContent = day;
+
+        // Create status text
+        const statusTextSpan = document.createElement('span');
+        statusTextSpan.classList.add('status-text');
+
+        // Add elements to day cell
+        dayCell.appendChild(statusButton);
+        dayCell.appendChild(dayNumberSpan);
+        dayCell.appendChild(statusTextSpan);
+
+        // Set initial status if exists
+        const currentStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.BANK_HOLIDAY : null);
+        if (currentStatus) {
+            dayCell.classList.add(currentStatus === DAY_STATUS.BANK_HOLIDAY ? DAY_STATUS.HOLIDAY : currentStatus);
+            statusTextSpan.textContent = STATUS_TEXT[currentStatus === DAY_STATUS.BANK_HOLIDAY ? DAY_STATUS.BANK_HOLIDAY : currentStatus] || '';
+        }
+
+        // Create dropdown (but don't append yet)
+        const dropdown = createStatusDropdown(dayCell, dateStr, currentStatus);
+
+        // Handle status button click
+        statusButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // Toggle this dropdown
+            const isActive = statusButton.classList.contains('active');
+            
+            // Close all other dropdowns first
+            document.querySelectorAll('.day-status-dropdown.active').forEach(d => {
+                const btn = d.parentElement.querySelector('.day-status-button');
+                btn.classList.remove('active');
+                btn.setAttribute('aria-expanded', 'false');
+                d.classList.remove('active');
+                if (d.parentElement) {
+                    d.parentElement.removeChild(d);
+                }
+            });
+
+            // Toggle current dropdown
+            if (isActive) {
+                statusButton.classList.remove('active');
+                statusButton.setAttribute('aria-expanded', 'false');
+                if (dropdown.parentElement) {
+                    dropdown.parentElement.removeChild(dropdown);
+                }
+            } else {
+                statusButton.classList.add('active');
+                statusButton.setAttribute('aria-expanded', 'true');
+                document.body.appendChild(dropdown);
+                
+                // Position the dropdown next to the button
+                const buttonRect = statusButton.getBoundingClientRect();
+                dropdown.style.left = `${buttonRect.right + 5}px`;
+                dropdown.style.top = `${buttonRect.top}px`;
+                
+                dropdown.classList.add('active');
+                
+                // Focus first option
+                const firstOption = dropdown.querySelector('.day-status-option');
+                if (firstOption) firstOption.focus();
+            }
+        });
+
+        // Handle cycling click on the rest of the cell
+        dayCell.addEventListener('click', (e) => {
+            if (e.target !== statusButton && !statusButton.contains(e.target) && !dropdown.contains(e.target)) {
+                toggleDayStatus(dayCell, dateStr);
+            }
+        });
+
+        return dayCell;
+    }
+
     function renderCalendar(year, month) {
-        calendarDaysContainer.innerHTML = ''; 
+        calendarDaysContainer.innerHTML = '';
         currentDate = new Date(year, month, 1);
 
         monthSelect.value = month;
         yearSelect.value = year;
 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const firstDayOfMonthRaw = new Date(year, month, 1).getDay(); 
+        const firstDayOfMonthRaw = new Date(year, month, 1).getDay();
         const firstDayOfWeek = (firstDayOfMonthRaw === 0) ? 6 : firstDayOfMonthRaw - 1;
 
+        // Previous month days
         const prevMonthEndDate = new Date(year, month, 0);
         const prevMonthLastDate = prevMonthEndDate.getDate();
 
         for (let i = firstDayOfWeek - 1; i >= 0; i--) {
             const day = prevMonthLastDate - i;
-            const dayCell = document.createElement('div');
-            dayCell.classList.add('day', 'other-month');
-            const dayNumberSpan = document.createElement('span');
-            dayNumberSpan.classList.add('day-number');
-            dayNumberSpan.textContent = day;
-            dayCell.appendChild(dayNumberSpan);
+            const prevMonth = month - 1;
+            const prevYear = prevMonth < 0 ? year - 1 : year;
+            const adjustedMonth = prevMonth < 0 ? 11 : prevMonth;
+            const dateStr = `${prevYear}-${String(adjustedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayCell = createDayCell(day, dateStr, true);
             calendarDaysContainer.appendChild(dayCell);
         }
 
+        // Current month days
         for (let day = 1; day <= daysInMonth; day++) {
-            const dayCell = document.createElement('div');
-            dayCell.classList.add('day');
-            
-            const dayNumberSpan = document.createElement('span');
-            dayNumberSpan.classList.add('day-number');
-            dayNumberSpan.textContent = day;
-            dayCell.appendChild(dayNumberSpan);
-
-            const statusTextSpan = document.createElement('span');
-            statusTextSpan.classList.add('status-text');
-            dayCell.appendChild(statusTextSpan);
-
             const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            if (workData[dateStr]) {
-                dayCell.classList.add(workData[dateStr]);
-                statusTextSpan.textContent = STATUS_TEXT[workData[dateStr]] || '';
-            } else if (bankHolidayData[dateStr]) {
-                dayCell.classList.add(DAY_STATUS.HOLIDAY); // Use holiday class for styling
-                statusTextSpan.textContent = STATUS_TEXT[DAY_STATUS.BANK_HOLIDAY]; // Use BHOL text
-            }
-
+            const dayCell = createDayCell(day, dateStr);
+            
             const today = new Date();
             if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
                 dayCell.classList.add('today');
             }
-
-            dayCell.addEventListener('click', () => toggleDayStatus(dayCell, dateStr));
+            
             calendarDaysContainer.appendChild(dayCell);
         }
 
-        const totalCells = 42; 
+        // Next month days
+        const totalCells = 42;
         const cellsFilledSoFar = firstDayOfWeek + daysInMonth;
-        const nextMonthDaysNeeded = totalCells - cellsFilledSoFar > 0 ? totalCells - cellsFilledSoFar : ( (totalCells + 7) - cellsFilledSoFar ) % 7 ; // ensure we fill to 7 if totalCells is not enough, or if it perfectly aligns we add 0 (or 7 if we want to always have a next month row)
-        // Correction for ensuring next month days fill up to a total of 42 cells if needed, or at least complete the week
-        let daysToAdd = nextMonthDaysNeeded;
-        if ( (firstDayOfWeek + daysInMonth + nextMonthDaysNeeded) < totalCells && (firstDayOfWeek + daysInMonth + nextMonthDaysNeeded) % 7 !== 0){ // Check if we need more to complete 6 weeks
-             daysToAdd = nextMonthDaysNeeded + (7 - ((firstDayOfWeek + daysInMonth + nextMonthDaysNeeded) %7)) % 7;
+        let daysToAdd = totalCells - cellsFilledSoFar;
+        
+        if (daysToAdd > 14) daysToAdd = daysToAdd % 7;
+        if (daysToAdd === 0 && (firstDayOfWeek + daysInMonth) % 7 !== 0) {
+            daysToAdd = 7 - ((firstDayOfWeek + daysInMonth) % 7);
         }
-        if (daysToAdd > 14) daysToAdd = daysToAdd % 7; // Cap to prevent excessive next month days if logic is off, max 2 rows.
-        if (daysToAdd === 0 && (firstDayOfWeek + daysInMonth) % 7 !== 0) daysToAdd = 7 - ((firstDayOfWeek + daysInMonth) % 7); // If no days needed but current month doesnt end week
-        if ( (firstDayOfWeek + daysInMonth) % 7 === 0 && daysToAdd === 0 && (firstDayOfWeek + daysInMonth < 35) ) daysToAdd = 7; // Ensure at least 5 rows, if 4 rows are full, add one more from next month
-
+        if ((firstDayOfWeek + daysInMonth) % 7 === 0 && daysToAdd === 0 && (firstDayOfWeek + daysInMonth < 35)) {
+            daysToAdd = 7;
+        }
 
         for (let day = 1; day <= daysToAdd; day++) {
-            const dayCell = document.createElement('div');
-            dayCell.classList.add('day', 'other-month');
-            const dayNumberSpan = document.createElement('span');
-            dayNumberSpan.classList.add('day-number');
-            dayNumberSpan.textContent = day;
-            dayCell.appendChild(dayNumberSpan);
+            const nextMonth = month + 1;
+            const nextYear = nextMonth > 11 ? year + 1 : year;
+            const adjustedMonth = nextMonth > 11 ? 0 : nextMonth;
+            const dateStr = `${nextYear}-${String(adjustedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayCell = createDayCell(day, dateStr, true);
             calendarDaysContainer.appendChild(dayCell);
         }
 
@@ -350,6 +539,24 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsButton.addEventListener('click', (event) => {
         event.stopPropagation();
         settingsDropdown.classList.toggle('active');
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        // If we clicked inside a dropdown or button, let those handlers deal with it
+        if (e.target.closest('.day-status-button') || e.target.closest('.day-status-dropdown')) {
+            return;
+        }
+        
+        // Otherwise, close all dropdowns
+        closeAllDropdowns();
+    });
+
+    // Handle escape key globally
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllDropdowns();
+        }
     });
 
     window.addEventListener('click', (event) => {
