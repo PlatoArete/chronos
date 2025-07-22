@@ -15,11 +15,11 @@
                     &#9881; <!-- Cogwheel Unicode character -->
                 </button>
                 <div id="settings-dropdown" class="settings-dropdown">
-                    <div class="dropdown-item">
-                        <span>Dark Mode</span>
-                        <label class="theme-switch" for="theme-toggle">
+                    <div class="dropdown-item theme-toggle-container">
+                        <span class="dropdown-item-label">Dark Mode</span>
+                        <label class="toggle-switch">
                             <input type="checkbox" id="theme-toggle">
-                            <span class="slider round"></span>
+                            <span class="toggle-slider"></span>
                         </label>
                     </div>
                     <div class="dropdown-item" id="working-days-selector">
@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     <div class="dropdown-item">
-                        <a href="#" id="about-link">About Project Chronos</a>
+                        <a href="#" id="about-link">About</a>
                     </div>
                     <!-- More settings can be added here -->
                 </div>
@@ -95,7 +95,7 @@
     <div id="about-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>About Project Chronos</h2>
+                <h2>About</h2>
                 <span class="close-button" id="close-modal-button">&times;</span>
             </div>
             <div class="modal-body">

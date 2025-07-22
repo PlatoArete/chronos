@@ -6,10 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevMonthButton = document.getElementById('prev-month');
     const nextMonthButton = document.getElementById('next-month');
     const calendarDaysContainer = document.getElementById('calendar-days');
-    const themeToggle = document.getElementById('theme-toggle');
     const settingsButton = document.getElementById('settings-button');
     const settingsDropdown = document.getElementById('settings-dropdown');
-    const dropdownThemeText = settingsDropdown.querySelector('.dropdown-item span');
+    const themeToggleInput = document.getElementById('theme-toggle');
     const workingDayCheckboxes = document.querySelectorAll('#working-days-selector input[type="checkbox"]');
     const aboutLink = document.getElementById('about-link');
     const aboutModal = document.getElementById('about-modal');
@@ -545,12 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyTheme(theme) {
         if (theme === 'dark') {
             document.body.classList.add('dark-mode');
-            themeToggle.checked = true;
-            if(dropdownThemeText) dropdownThemeText.textContent = 'Dark Mode is ON'; 
+            themeToggleInput.checked = true;
         } else {
             document.body.classList.remove('dark-mode');
-            themeToggle.checked = false;
-            if(dropdownThemeText) dropdownThemeText.textContent = 'Light Mode is ON'; 
+            themeToggleInput.checked = false;
         }
     }
 
@@ -567,8 +564,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    themeToggle.addEventListener('change', () => {
-        if (themeToggle.checked) {
+    // Theme toggle handler
+    themeToggleInput.addEventListener('change', () => {
+        if (themeToggleInput.checked) {
             applyTheme('dark');
             saveThemePreference('dark');
         } else {
@@ -576,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
             saveThemePreference('light');
         }
     });
-
+    
     settingsButton.addEventListener('click', (event) => {
         event.stopPropagation();
         settingsDropdown.classList.toggle('active');
@@ -663,9 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('README.md');
             if (!response.ok) {
-                readmeContentEl.textContent = 'Could not load README.md content.';
-                console.error('Failed to fetch README.md:', response.status, response.statusText);
-                return;
+                throw new Error(`Failed to fetch README.md: ${response.status} ${response.statusText}`);
             }
             const readmeText = await response.text();
             readmeContentEl.textContent = readmeText;
@@ -674,8 +670,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 settingsDropdown.classList.remove('active');
             }
         } catch (error) {
-            readmeContentEl.textContent = 'Error loading README.md content.';
-            console.error('Error fetching or processing README.md:', error);
+            console.error('Error loading README.md:', error);
+            readmeContentEl.textContent = 'Error loading README content. Please try again later.';
+            aboutModal.classList.add('active');
         }
     }
 

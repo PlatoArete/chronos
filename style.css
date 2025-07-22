@@ -149,7 +149,7 @@ header h1 {
     border-radius: 5px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1000;
-    min-width: 180px; /* Adjust as needed */
+    min-width: 200px; /* Increased from 180px */
     padding: 10px;
 }
 
@@ -158,10 +158,12 @@ header h1 {
 }
 
 .dropdown-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0; /* Adjust padding within item */
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
 }
 
 .dropdown-item span {
@@ -177,10 +179,10 @@ header h1 {
 }
 
 .dropdown-item-label {
-    font-size: 0.9em;
+    display: block;
+    margin-bottom: 5px;
     color: var(--text-color);
-    margin-right: 10px;
-    flex-shrink: 0; /* Prevent label from shrinking */
+    font-weight: 500;
 }
 
 .dropdown-input {
@@ -522,17 +524,20 @@ footer {
 
 .working-days-checkboxes {
     display: flex;
-    gap: 5px; /* Space between checkboxes */
+    flex-wrap: wrap; /* Allow wrapping if needed */
+    gap: 8px; /* Increased from 5px */
     align-items: center;
+    padding: 5px 0;
 }
 
 .working-days-checkboxes label {
-    font-size: 0.85em; /* Slightly smaller font for M, T, W etc. */
+    min-width: 35px; /* Ensure consistent width */
+    font-size: 0.85em;
     color: var(--text-color);
     display: flex;
     align-items: center;
     padding: 2px 4px;
-    border: 1px solid transparent; /* For focus or selected styles later if needed */
+    border: 1px solid transparent;
     border-radius: 3px;
     cursor: pointer;
 }
@@ -884,4 +889,85 @@ body.dark-mode .context-menu-item:hover {
 
 .notes-save-btn:hover {
     opacity: 0.9;
+} 
+
+/* Toggle Switch */
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.theme-toggle-container .dropdown-item-label {
+    margin-bottom: 0;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--switch-bg);
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--switch-slider-bg);
+    transition: .3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--switch-checked-bg);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* Add icons for light/dark mode */
+.toggle-slider:after {
+    content: "🌞";
+    position: absolute;
+    right: 5px;
+    top: 2px;
+    font-size: 14px;
+}
+
+.toggle-switch input:checked + .toggle-slider:after {
+    content: "🌙";
+    left: 5px;
+    right: auto;
+} 
+
+#about-link {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+#about-link:hover {
+    text-decoration: underline;
 } 
