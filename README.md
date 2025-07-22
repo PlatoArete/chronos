@@ -6,7 +6,10 @@ Project Chronos is a client-side web application designed to help you track your
 
 *   **Interactive Calendar**: 
     *   View and navigate through months and years.
-    *   Click on a day to cycle its status through:
+    *   Two ways to set day status:
+        *   Click on a day to cycle through statuses
+        *   Use the dropdown menu (click circle icon) to select status directly
+    *   Available statuses:
         *   **WFH** (Work From Home) - Pastel Blue (Light Mode) / Neon Blue (Dark Mode)
         *   **WFO** (Work From Office) - Pastel Yellow (Light Mode) / Neon Yellow (Dark Mode)
         *   **OFF** (Off Site Work) - Pastel Turquoise (Light Mode) / Neon Turquoise (Dark Mode) - counts as office time
@@ -15,6 +18,7 @@ Project Chronos is a client-side web application designed to help you track your
         *   **PERS** (Personal Leave) - Pastel Purple (Light Mode) / Neon Purple (Dark Mode) - counts as non-working day
         *   Clear (no status)
     *   Text indicators (WFH, WFO, OFF, HOLS, SICK, PERS) directly on the calendar days.
+    *   Right-click on any day to add, edit, view, or delete notes.
 *   **Automatic UK Bank Holiday Integration**:
     *   Automatically fetches and marks bank holidays for England and Wales from the `gov.uk` API as "BHOL".
     *   These are visually distinct with the same styling as holidays but a different text indicator.
@@ -31,12 +35,12 @@ Project Chronos is a client-side web application designed to help you track your
         *   **Office Presence**: Your actual office days (including Off Site work) as a percentage of Net Working Days.
     *   **3-Month Rolling Summary**: Provides the same metrics as the monthly summary, aggregated for the current month and previous two months.
 *   **Theme Customization**: 
-    *   **Dark/Light Mode Toggle**: Switch between a dark (default) and light visual theme via a settings menu.
+    *   **Dark/Light Mode Toggle**: Easy-to-use toggle switch in the settings menu with sun/moon indicators.
 *   **Persistent Data**: 
-    *   All your marked days, theme preferences, and selected working days are saved locally in your browser's `localStorage`. This means your data persists even after closing the browser or restarting your computer.
+    *   All your marked days, notes, theme preferences, and selected working days are saved locally in your browser's `localStorage`. This means your data persists even after closing the browser or restarting your computer.
 *   **Settings Menu**: 
     *   Accessible via a cogwheel icon.
-    *   Contains the theme toggle and working day selection.
+    *   Contains theme toggle, working day selection, and About link.
 
 ## How to Run
 
