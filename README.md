@@ -23,7 +23,7 @@ Project Chronos is a client-side web application designed to help you track your
         *   Count of WFH days.
         *   Count of WFO days.
         *   **Net Working Days**: Calculated based on your selected working days for the month, minus any marked holidays (user-marked or API-set).
-        *   **Target Office Days (60%)**: The target number of office days, calculated as 60% of Net Working Days (rounded up).
+        *   **Target Office Days (60%)**: The target number of office days, calculated as 60% of Net Working Days (rounded to nearest whole number).
         *   **Office Presence**: Your actual office days as a percentage of Net Working Days.
     *   **Quarterly Summary**: Provides the same metrics as the monthly summary, aggregated for the current calendar quarter.
 *   **Theme Customization**: 

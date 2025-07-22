@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (monthlyWorkingDaysEl) monthlyWorkingDaysEl.textContent = monthlyNetWorkingDays;
 
         // Calculate and display monthly target office days and percentage
-        monthlyTargetOfficeDays = Math.ceil(monthlyNetWorkingDays * 0.6);
+        monthlyTargetOfficeDays = Math.round(monthlyNetWorkingDays * 0.6);
         monthlyOfficePercentage = (monthlyNetWorkingDays > 0) ? (monthlyOffice / monthlyNetWorkingDays) * 100 : 0;
         if (monthlyTargetOfficeEl) monthlyTargetOfficeEl.textContent = monthlyTargetOfficeDays;
         if (monthlyOfficePercentageEl) monthlyOfficePercentageEl.textContent = monthlyOfficePercentage.toFixed(1);
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (quarterlyWorkingDaysEl) quarterlyWorkingDaysEl.textContent = quarterlyNetWorkingDays;
 
         // Calculate and display quarterly target office days and percentage
-        quarterlyTargetOfficeDays = Math.ceil(quarterlyNetWorkingDays * 0.6);
+        quarterlyTargetOfficeDays = Math.round(quarterlyNetWorkingDays * 0.6);
         quarterlyOfficePercentage = (quarterlyNetWorkingDays > 0) ? (quarterlyOffice / quarterlyNetWorkingDays) * 100 : 0;
         if (quarterlyTargetOfficeEl) quarterlyTargetOfficeEl.textContent = quarterlyTargetOfficeDays;
         if (quarterlyOfficePercentageEl) quarterlyOfficePercentageEl.textContent = quarterlyOfficePercentage.toFixed(1);
