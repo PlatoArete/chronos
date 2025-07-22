@@ -25,7 +25,7 @@ Project Chronos is a client-side web application designed to help you track your
         *   **Net Working Days**: Calculated based on your selected working days for the month, minus any marked holidays (user-marked or API-set).
         *   **Target Office Days (60%)**: The target number of office days, calculated as 60% of Net Working Days (rounded to nearest whole number).
         *   **Office Presence**: Your actual office days as a percentage of Net Working Days.
-    *   **Quarterly Summary**: Provides the same metrics as the monthly summary, aggregated for the current calendar quarter.
+    *   **3-Month Rolling Summary**: Provides the same metrics as the monthly summary, aggregated for the current month and previous two months.
 *   **Theme Customization**: 
     *   **Dark/Light Mode Toggle**: Switch between a dark (default) and light visual theme via a settings menu.
 *   **Persistent Data**: 

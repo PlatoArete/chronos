@@ -215,22 +215,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (monthlyTargetOfficeEl) monthlyTargetOfficeEl.textContent = monthlyTargetOfficeDays;
         if (monthlyOfficePercentageEl) monthlyOfficePercentageEl.textContent = monthlyOfficePercentage.toFixed(1);
 
-        // Quarterly summary
-        const currentQuarter = Math.floor(month / 3);
-        const startMonthOfQuarter = currentQuarter * 3;
-
+        // Rolling 3-month summary (current month and previous two months)
         for (let mOffset = 0; mOffset < 3; mOffset++) {
-            const currentMonthInQuarter = startMonthOfQuarter + mOffset;
-            // Adjust year if quarter spans across year-end (e.g. viewing Dec, quarter is Oct, Nov, Dec)
-            // Or viewing Jan, quarter is Jan, Feb, Mar of current year.
-            // This simple calculation assumes the quarter is within the same `year` as the viewed `month`.
-            // For a more robust cross-year quarter, this would need adjustment if `startMonthOfQuarter` or `currentMonthInQuarter` makes year change.
-            const yearForThisMonthInQuarter = year; 
-            const daysInThisMonth = new Date(yearForThisMonthInQuarter, currentMonthInQuarter + 1, 0).getDate();
+            // Calculate month and year, handling year boundary correctly
+            let targetMonth = month - mOffset;
+            let targetYear = year;
+            if (targetMonth < 0) {
+                targetMonth += 12;
+                targetYear--;
+            }
+            
+            const daysInThisMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
             
             for (let day = 1; day <= daysInThisMonth; day++) {
-                const dateStr = `${yearForThisMonthInQuarter}-${String(currentMonthInQuarter + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const currentDateObj = new Date(yearForThisMonthInQuarter, currentMonthInQuarter, day);
+                const dateStr = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const currentDateObj = new Date(targetYear, targetMonth, day);
                 const dayOfWeek = currentDateObj.getDay();
 
                 const currentDayStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.HOLIDAY : null);
