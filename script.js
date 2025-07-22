@@ -42,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
         HOLIDAY: 'holiday',
         SICK: 'sick',
         PERSONAL: 'personal',
-        OFFSITE: 'offsite'
+        OFFSITE: 'offsite',
+        BANK_HOLIDAY: 'bank-holiday' // Adding this for class consistency
     };
     const STATUS_TEXT = { 
         [DAY_STATUS.WFH]: 'WFH', 
@@ -50,7 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
         [DAY_STATUS.HOLIDAY]: 'HOLS',
         [DAY_STATUS.SICK]: 'SICK',
         [DAY_STATUS.PERSONAL]: 'PERS',
-        [DAY_STATUS.OFFSITE]: 'OFF'
+        [DAY_STATUS.OFFSITE]: 'OFF',
+        [DAY_STATUS.BANK_HOLIDAY]: 'BHOL'
     };
 
     function populateMonthSelect() {
@@ -114,11 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (workData[dateStr]) {
                 dayCell.classList.add(workData[dateStr]);
                 statusTextSpan.textContent = STATUS_TEXT[workData[dateStr]] || '';
-            } else if (bankHolidayData[dateStr]) { // Check if it's an API-set bank holiday not yet in workData
-                dayCell.classList.add(DAY_STATUS.HOLIDAY);
-                statusTextSpan.textContent = STATUS_TEXT[DAY_STATUS.HOLIDAY] || '';
-                 // Optionally, add to workData if we want it to be saved/cycled by user
-                // workData[dateStr] = DAY_STATUS.HOLIDAY;
+            } else if (bankHolidayData[dateStr]) {
+                dayCell.classList.add(DAY_STATUS.HOLIDAY); // Use holiday class for styling
+                statusTextSpan.textContent = STATUS_TEXT[DAY_STATUS.BANK_HOLIDAY]; // Use BHOL text
             }
 
             const today = new Date();
@@ -215,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentDateObj = new Date(year, month, day);
             const dayOfWeek = currentDateObj.getDay();
 
+            // If it's a bank holiday, treat it as a holiday status but with different text
             const currentDayStatus = workData[dateStr] || (bankHolidayData[dateStr] ? DAY_STATUS.HOLIDAY : null);
 
             if (currentDayStatus === DAY_STATUS.WFH) monthlyWfh++;

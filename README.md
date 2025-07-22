@@ -16,8 +16,9 @@ Project Chronos is a client-side web application designed to help you track your
         *   Clear (no status)
     *   Text indicators (WFH, WFO, OFF, HOLS, SICK, PERS) directly on the calendar days.
 *   **Automatic UK Bank Holiday Integration**:
-    *   Automatically fetches and marks bank holidays for England and Wales from the `gov.uk` API as "HOLS".
-    *   These are visually distinct and factored into working day calculations.
+    *   Automatically fetches and marks bank holidays for England and Wales from the `gov.uk` API as "BHOL".
+    *   These are visually distinct with the same styling as holidays but a different text indicator.
+    *   Bank holidays are automatically factored into working day calculations and cannot be manually cycled.
 *   **Configurable Working Days**: 
     *   Set your typical working days (Monday to Sunday) via checkboxes in the settings menu.
     *   Defaults to Monday-Friday.
