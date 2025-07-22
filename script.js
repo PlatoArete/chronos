@@ -30,6 +30,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentDate = new Date();
     let workData = {}; // Store as { 'YYYY-MM-DD': 'wfh'/'office'/'holiday' }
     let bankHolidayData = {}; // To store fetched bank holidays { 'YYYY-MM-DD': true }
+    let notesData = {}; // To store notes for each date
+
+    // Create context menu
+    const contextMenu = document.createElement('div');
+    contextMenu.className = 'context-menu';
+    document.body.appendChild(contextMenu);
+
+    // Create notes modal
+    const notesModal = document.createElement('div');
+    notesModal.className = 'notes-modal';
+    notesModal.innerHTML = `
+        <div class="notes-modal-content">
+            <div class="notes-modal-header">
+                <h3>Notes for <span class="notes-date"></span></h3>
+                <button class="notes-modal-close">&times;</button>
+            </div>
+            <textarea class="notes-textarea" placeholder="Enter your notes here..."></textarea>
+            <button class="notes-save-btn">Save Notes</button>
+        </div>
+    `;
+    document.body.appendChild(notesModal);
+
+    // Notes modal elements
+    const notesDateSpan = notesModal.querySelector('.notes-date');
+    const notesTextarea = notesModal.querySelector('.notes-textarea');
+    const notesSaveBtn = notesModal.querySelector('.notes-save-btn');
+    const notesCloseBtn = notesModal.querySelector('.notes-modal-close');
+    let currentEditingDate = null;
 
     const MONTH_NAMES = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -191,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function createDayCell(day, dateStr, isOtherMonth = false) {
         const dayCell = document.createElement('div');
         dayCell.classList.add('day');
+        dayCell.setAttribute('data-date', dateStr);
         if (isOtherMonth) dayCell.classList.add('other-month');
 
         // Create status button with chevron
@@ -278,6 +307,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleDayStatus(dayCell, dateStr);
             }
         });
+
+        // Add right-click handler
+        dayCell.addEventListener('contextmenu', (e) => showContextMenu(e, dateStr));
+
+        // Add notes indicator if needed
+        if (notesData[dateStr]) {
+            const indicator = document.createElement('div');
+            indicator.className = 'day-note-indicator';
+            indicator.innerHTML = '📝';
+            indicator.title = 'This day has notes';
+            dayCell.appendChild(indicator);
+        }
 
         return dayCell;
     }
@@ -657,9 +698,150 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function showContextMenu(e, dateStr) {
+        e.preventDefault();
+        
+        // Close any open dropdowns
+        closeAllDropdowns();
+        
+        // Position context menu
+        contextMenu.style.left = `${e.clientX}px`;
+        contextMenu.style.top = `${e.clientY}px`;
+        
+        // Clear previous menu items
+        contextMenu.innerHTML = '';
+        
+        // Add menu items
+        const hasNotes = notesData[dateStr];
+        const items = [
+            {
+                text: hasNotes ? 'Edit Notes' : 'Add Notes',
+                icon: '📝',
+                action: () => showNotesModal(dateStr)
+            }
+        ];
+        
+        if (hasNotes) {
+            items.push({
+                text: 'View Notes',
+                icon: '👁️',
+                action: () => showNotesModal(dateStr, true)
+            });
+            items.push({
+                text: 'Delete Notes',
+                icon: '🗑️',
+                action: () => {
+                    delete notesData[dateStr];
+                    saveNotesData();
+                    updateNotesIndicator(dateStr);
+                }
+            });
+        }
+        
+        items.forEach(item => {
+            const menuItem = document.createElement('div');
+            menuItem.className = 'context-menu-item';
+            menuItem.innerHTML = `${item.icon} ${item.text}`;
+            menuItem.addEventListener('click', () => {
+                item.action();
+                hideContextMenu();
+            });
+            contextMenu.appendChild(menuItem);
+        });
+        
+        contextMenu.classList.add('active');
+    }
+
+    function hideContextMenu() {
+        contextMenu.classList.remove('active');
+    }
+
+    function showNotesModal(dateStr, readOnly = false) {
+        currentEditingDate = dateStr;
+        const date = new Date(dateStr);
+        const formattedDate = date.toLocaleDateString(undefined, { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        notesDateSpan.textContent = formattedDate;
+        notesTextarea.value = notesData[dateStr] || '';
+        notesTextarea.readOnly = readOnly;
+        notesSaveBtn.style.display = readOnly ? 'none' : 'block';
+        
+        notesModal.classList.add('active');
+        if (!readOnly) {
+            notesTextarea.focus();
+        }
+    }
+
+    function hideNotesModal() {
+        notesModal.classList.remove('active');
+        currentEditingDate = null;
+    }
+
+    function saveNotes() {
+        if (currentEditingDate && notesTextarea.value.trim()) {
+            notesData[currentEditingDate] = notesTextarea.value.trim();
+        } else if (currentEditingDate) {
+            delete notesData[currentEditingDate];
+        }
+        
+        saveNotesData();
+        updateNotesIndicator(currentEditingDate);
+        hideNotesModal();
+    }
+
+    function updateNotesIndicator(dateStr) {
+        const dayCell = document.querySelector(`.day[data-date="${dateStr}"]`);
+        if (!dayCell) return;
+
+        let indicator = dayCell.querySelector('.day-note-indicator');
+        
+        if (notesData[dateStr]) {
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.className = 'day-note-indicator';
+                indicator.innerHTML = '📝';
+                indicator.title = 'This day has notes';
+                dayCell.appendChild(indicator);
+            }
+        } else if (indicator) {
+            dayCell.removeChild(indicator);
+        }
+    }
+
+    function saveNotesData() {
+        localStorage.setItem('notesData', JSON.stringify(notesData));
+    }
+
+    function loadNotesData() {
+        const savedData = localStorage.getItem('notesData');
+        if (savedData) {
+            notesData = JSON.parse(savedData);
+        }
+    }
+
+    // Event listeners for notes functionality
+    document.addEventListener('click', () => {
+        hideContextMenu();
+    });
+
+    notesCloseBtn.addEventListener('click', hideNotesModal);
+    notesSaveBtn.addEventListener('click', saveNotes);
+
+    notesModal.addEventListener('click', (e) => {
+        if (e.target === notesModal) {
+            hideNotesModal();
+        }
+    });
+
     async function init() {
         loadWorkData();
         loadWorkingDaySelection();
+        loadNotesData(); // Add this line
         await fetchAndApplyBankHolidays(); // Fetch bank holidays before first render
         loadThemePreference(); 
         populateMonthSelect();
