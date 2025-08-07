@@ -300,8 +300,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Handle cycling click on the rest of the cell
+        // Handle cycling click on the rest of the cell and long-press for mobile
+        let longPressTimer = null;
+        let isLongPress = false;
+
+        dayCell.addEventListener('touchstart', e => {
+            // Don't trigger long-press if the status button itself is the target
+            if (e.target.closest('.day-status-button')) return;
+            
+            isLongPress = false;
+            longPressTimer = setTimeout(() => {
+                isLongPress = true;
+                e.preventDefault(); // Prevent default touch actions like text selection or context menu
+                
+                // Open status dropdown by simulating a click on its button
+                if (statusButton) {
+                    statusButton.click();
+                }
+                
+                // Provide haptic feedback if the browser supports it
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }, 500); // 500ms threshold for a long press
+        });
+
+        dayCell.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+        });
+
+        dayCell.addEventListener('touchmove', () => {
+            clearTimeout(longPressTimer);
+        });
+
         dayCell.addEventListener('click', (e) => {
+            // If a long press just occurred, prevent the default click action.
+            if (isLongPress) {
+                e.preventDefault();
+                e.stopPropagation();
+                isLongPress = false; // Reset for the next interaction
+                return;
+            }
+            // If it's a regular click, perform the toggle action.
             if (e.target !== statusButton && !statusButton.contains(e.target) && !dropdown.contains(e.target)) {
                 toggleDayStatus(dayCell, dateStr);
             }
@@ -651,7 +691,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     // renderCalendar and updateSummaries will check bankHolidayData.
                 });
             }
-            console.log('Bank holidays loaded:', bankHolidayData);
         } catch (error) {
             console.error('Error fetching or processing bank holidays:', error);
         }
