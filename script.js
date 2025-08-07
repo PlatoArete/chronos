@@ -254,75 +254,64 @@ document.addEventListener('DOMContentLoaded', () => {
             statusTextSpan.textContent = STATUS_TEXT[currentStatus === DAY_STATUS.BANK_HOLIDAY ? DAY_STATUS.BANK_HOLIDAY : currentStatus] || '';
         }
 
-        // Create dropdown (but don't append yet)
         const dropdown = createStatusDropdown(dayCell, dateStr, currentStatus);
 
-        // Handle status button click
-        statusButton.addEventListener('click', (e) => {
+        // Unified click handler for the status button
+        const openDropdown = (e) => {
             e.stopPropagation();
             
-            // Toggle this dropdown
             const isActive = statusButton.classList.contains('active');
             
-            // Close all other dropdowns first
-            document.querySelectorAll('.day-status-dropdown.active').forEach(d => {
-                const btn = d.parentElement.querySelector('.day-status-button');
-                btn.classList.remove('active');
-                btn.setAttribute('aria-expanded', 'false');
-                d.classList.remove('active');
-                if (d.parentElement) {
-                    d.parentElement.removeChild(d);
-                }
-            });
+            closeAllDropdowns(); // Close all other dropdowns first
 
-            // Toggle current dropdown
-            if (isActive) {
-                statusButton.classList.remove('active');
-                statusButton.setAttribute('aria-expanded', 'false');
-                if (dropdown.parentElement) {
-                    dropdown.parentElement.removeChild(dropdown);
-                }
-            } else {
+            if (!isActive) {
                 statusButton.classList.add('active');
                 statusButton.setAttribute('aria-expanded', 'true');
                 document.body.appendChild(dropdown);
                 
-                // Position the dropdown next to the button
-                const buttonRect = statusButton.getBoundingClientRect();
-                dropdown.style.left = `${buttonRect.right + 5}px`;
-                dropdown.style.top = `${buttonRect.top}px`;
+                // Position the dropdown near the event coordinates (for touch) or button (for click)
+                const rect = statusButton.getBoundingClientRect();
+                let top = rect.top;
+                let left = rect.right + 5;
+
+                // For touch events, position relative to the touch point for better UX
+                if (e.touches && e.touches.length > 0) {
+                    left = e.touches[0].clientX + 5;
+                    top = e.touches[0].clientY;
+                }
+                
+                dropdown.style.left = `${left}px`;
+                dropdown.style.top = `${top}px`;
                 
                 dropdown.classList.add('active');
                 
-                // Focus first option
                 const firstOption = dropdown.querySelector('.day-status-option');
                 if (firstOption) firstOption.focus();
             }
-        });
+        };
+
+        // Handle status button click
+        statusButton.addEventListener('click', openDropdown);
 
         // Handle cycling click on the rest of the cell and long-press for mobile
         let longPressTimer = null;
         let isLongPress = false;
 
         dayCell.addEventListener('touchstart', e => {
-            // Don't trigger long-press if the status button itself is the target
             if (e.target.closest('.day-status-button')) return;
             
             isLongPress = false;
             longPressTimer = setTimeout(() => {
                 isLongPress = true;
-                e.preventDefault(); // Prevent default touch actions like text selection or context menu
+                e.preventDefault(); 
                 
-                // Open status dropdown by simulating a click on its button
-                if (statusButton) {
-                    statusButton.click();
-                }
+                // Use the unified function to open the dropdown
+                openDropdown(e);
                 
-                // Provide haptic feedback if the browser supports it
                 if (navigator.vibrate) {
                     navigator.vibrate(50);
                 }
-            }, 500); // 500ms threshold for a long press
+            }, 500); 
         });
 
         dayCell.addEventListener('touchend', () => {
@@ -334,21 +323,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         dayCell.addEventListener('click', (e) => {
-            // If a long press just occurred, prevent the default click action.
             if (isLongPress) {
                 e.preventDefault();
                 e.stopPropagation();
-                isLongPress = false; // Reset for the next interaction
+                isLongPress = false; 
                 return;
             }
-            // If it's a regular click, perform the toggle action.
             if (e.target !== statusButton && !statusButton.contains(e.target) && !dropdown.contains(e.target)) {
                 toggleDayStatus(dayCell, dateStr);
             }
         });
 
-        // Add right-click handler
-        dayCell.addEventListener('contextmenu', (e) => showContextMenu(e, dateStr));
+        // Add right-click handler for non-touch devices
+        if (!('ontouchstart' in window)) {
+            dayCell.addEventListener('contextmenu', (e) => showContextMenu(e, dateStr));
+        }
 
         // Add notes indicator if needed
         if (notesData[dateStr]) {
